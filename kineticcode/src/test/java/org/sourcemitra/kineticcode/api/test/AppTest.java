@@ -1,4 +1,4 @@
-package org.sourcemitra.automation.automation;
+package org.sourcemitra.kineticcode.api.test;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

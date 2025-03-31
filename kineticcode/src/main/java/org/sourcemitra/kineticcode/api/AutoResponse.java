@@ -7,14 +7,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 public class AutoResponse {
 
 	Map<String, Object> resultMap;
 	private String response;
+	JsonObject jsonResponse;
 	
 	public AutoResponse() {
 		this.response = null;
 		this.resultMap = new HashMap<>();
+		jsonResponse = null;
 	}
 	
 	public AutoResponse(AutoRequest request) throws IOException {
@@ -56,6 +61,8 @@ public class AutoResponse {
 			}
 			resultMap.put("response", response.toString());
 			this.response = response.toString();
+			this.jsonResponse = JsonParser.parseString(this.response).getAsJsonObject();
+
 			return true;
 		}
 		catch(java.io.FileNotFoundException e){
@@ -77,8 +84,12 @@ public class AutoResponse {
 		
 	}
 
-	public String getResBody() {
+	public String getBody() {
 		return this.response;
+	}
+	
+	public JsonObject getBodyJSON() {
+		return this.jsonResponse;
 	}
 	
 	public int getStatusCode() {

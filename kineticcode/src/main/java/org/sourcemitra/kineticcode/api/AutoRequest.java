@@ -1,6 +1,7 @@
 package org.sourcemitra.kineticcode.api;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -22,7 +23,7 @@ public class AutoRequest {
 	private int ReqMethod;
 	private HashMap<String, String> headers;
 	HttpURLConnection connection;
-	
+
 	public AutoRequest() {
 		this.HOST = null;
 		this.RESOURCE_PATH = null;
@@ -31,8 +32,8 @@ public class AutoRequest {
 		this.response = null;
 		this.headers = new HashMap<>();
 	}
-	
-	
+
+
 
 	public AutoRequest(String endpoint) throws URISyntaxException, IOException {
 		try {
@@ -60,14 +61,14 @@ public class AutoRequest {
 			init(endpoint);
 		}
 	}
-	
+
 	public HttpURLConnection init(String REQUEST_URL) throws URISyntaxException, IOException {
 		URI uri = new URI(REQUEST_URL);
 		URL url = uri.toURL();
 		this.connection = (HttpURLConnection) url.openConnection();
 		return connection;
 	}
-	
+
 	public AutoRequest(String host, String resourcepath) throws URISyntaxException, IOException {
 		this.HOST = host;
 		this.RESOURCE_PATH = resourcepath;
@@ -79,44 +80,48 @@ public class AutoRequest {
 		this.REQUEST_URL = URL;
 		this.init(this.REQUEST_URL);
 	}
-	
+
 	public void setHTTPMethod(String method) throws ProtocolException {
 		method = method.toUpperCase();
 		switch(method) {
-			case "GET":
-				this.ReqMethod = 1;
-				break;
-			case "POST":
-				this.ReqMethod = 2;
-				break;
-			case "PUT":
-				this.ReqMethod = 3;
-				break;
-			case "DELETE":
-				this.ReqMethod = 4;
-				break;
-			case "PATCH":
-				this.ReqMethod = 4;
-				break;
-			default:
-				this.ReqMethod = 0;
+		case "GET":
+			this.ReqMethod = 1;
+			break;
+		case "POST":
+			this.ReqMethod = 2;
+			break;
+		case "PUT":
+			this.ReqMethod = 3;
+			break;
+		case "DELETE":
+			this.ReqMethod = 4;
+			break;
+		case "PATCH":
+			this.ReqMethod = 4;
+			break;
+		default:
+			this.ReqMethod = 0;
 		}		
-		
+
 		this.connection.setRequestMethod(method);
-		
+
 	}
-	
-	public String getReqBody() {
+
+	public String getBody() {
 		return this.reqBody;
 	}
 
-	public void setReqHeader(String headerName, String headerValue) {
+	public void setHeader(String headerName, String headerValue) {
 		this.headers.put(headerName, headerValue);
 	}
 
-	public void setReqBody() {
-		// TODO Auto-generated method stub
-		
+	public void setBody(String body) throws IOException {
+        this.connection.setDoOutput(true);
+		try (OutputStream os = this.connection.getOutputStream()) {
+			byte[] input = body.getBytes(StandardCharsets.UTF_8);
+			os.write(input, 0, input.length);
+		}
+		this.reqBody = body;
 	}
 
 	public String getReqHeader(String headerName) {
@@ -125,17 +130,16 @@ public class AutoRequest {
 
 	public HashMap<String, String> getReqHeaders() {
 		return this.headers;
-
 	}
-	
+
 	private boolean ntlm(String username, String password, String domain) { 	                                                                        
 		return true;                                                        
 	}                                                                       
-	                                                                        
+
 	private boolean oAuth2() {                                              	                                                                        
 		return true;                                                        
 	}                                                                       
-	
+
 	public boolean basicAuth(String username, String password) {
 		String auth = username + ":" + password;
 		byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
